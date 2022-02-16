@@ -1,0 +1,77 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © matrix391
+
+//@version=4
+ 
+strategy("RSI2", overlay=true, pyramiding=5, default_qty_type=strategy.percent_of_equity,
+  default_qty_value=3)
+ 
+// Date Ranges
+from_month = input(defval = 3, title = "From Month", minval = 1, maxval = 12)
+from_day   = input(defval = 1, title = "From Day", minval = 1, maxval = 31)
+from_year  = input(defval = 2020, title = "From Year")
+to_month   = input(defval = 12, title = "To Month", minval = 1, maxval = 12)
+to_day     = input(defval = 31, title = "To Day", minval = 1, maxval = 31)
+to_year    = input(defval = 2021, title = "To Year")
+start  = timestamp(from_year, from_month, from_day, 00, 00)  // backtest start window
+finish = timestamp(to_year, to_month, to_day, 23, 59)        // backtest finish window
+window = time >= start and time <= finish ? true : false // create function "within window of time"
+// Strategy Inputs
+
+fast_sma_period = input(50, title='Fast SMA Period')
+slow_sma_period  =input(200, title = 'Slow SMA Period')
+rsi_period = input(2, title  = 'RSI Period')
+rsi_ob_threshold  = input(90, title = " RSI Overbought Threshold")
+rsi_os_threshold  = input(10, title = 'RSI Oversold Threshold')
+
+target_perc = input(-10, title='Target Loss to Average Down (%)', maxval=0)/100
+target_qty  = input(50, title='% Of Current Holdings to Buy', minval=0)/100 
+long_take_profit = input(10, title='Long Target Take Profit', minval=0)/100
+short_take_profit = input(10, title='Short Target Take Profit', minval=0)/100
+long_stop_loss = input(10, title='Long Stop Loss', minval=0)/100
+short_stop_loss = input(10, title='Short Stop Loss', minval=0)/100
+
+fast_sma = sma(close, fast_sma_period)
+slow_sma = sma(close, slow_sma_period)
+rsi  = rsi(close, rsi_period)
+
+entry_long  = close > slow_sma and rsi <= rsi_os_threshold and window
+entry_short = close < slow_sma and rsi >= rsi_ob_threshold and window
+
+exit_long = strategy.position_size > 0 and close > fast_sma
+exit_short = strategy.position_size < 0 and close < fast_sma
+    
+// Calculate our key levels
+pnl = (close - strategy.position_avg_price) / strategy.position_avg_price
+
+long_take_profit_level = close * (1 + long_take_profit)
+short_take_profit_level = close * (1 - short_take_profit)  
+long_stop_loss_level  =close * (1 - long_stop_loss)
+short_stop_loss_level  =close * (1 + short_stop_loss)
+   
+if entry_long
+    strategy.entry("Entry Long", strategy.long,  stop = long_stop_loss_level, limit = long_take_profit_level)
+    
+if entry_short
+    strategy.entry("Entry Short", strategy.short, stop = short_stop_loss_level, limit = short_take_profit_level )
+
+if (pnl <= target_perc)
+    qty = abs(floor(strategy.position_size * target_qty))
+    if strategy.position_size > 0 
+        strategy.entry("Additional Long", strategy.long, qty=qty, stop = long_stop_loss_level, limit = long_take_profit_level)
+    if strategy.position_size < 0 
+        strategy.entry("Additional Short", strategy.short, qty=qty, stop = short_stop_loss_level, limit = short_take_profit_level)
+ 
+if exit_long
+    strategy.exit("Exit Long", stop = long_stop_loss_level, limit = long_take_profit_level)
+    
+if exit_short
+    strategy.exit("Exit Short", stop = short_stop_loss_level, limit = short_take_profit_level)
+
+plot(strategy.position_avg_price, style=plot.style_linebr, color=color.red, title='Average Price')
+
+
+
+            
+
+    
