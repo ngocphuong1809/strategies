@@ -19,15 +19,16 @@
 //      - HT Candle is red
 //      - WT > 0 and crossed down
 //@version=4
-strategy(title = 'VuManChu B Scalp Script with Filters', shorttitle = 'VMC Cipher_B_Scalper', overlay=true, pyramiding = 3, initial_capital=10000)
+strategy(title = 'VuManChu B Scalp Script with Filters', shorttitle = 'VMC Cipher_B_Scalper', overlay=true,  default_qty_type = strategy.percent_of_equity,
+         default_qty_value = 100, pyramiding = 3, initial_capital=10000)
 
 // PARAMETERS {
 // Date Ranges
 from_month = input(defval = 06, title = "From Month", minval = 1, maxval = 12)
 from_day   = input(defval = 01, title = "From Day", minval = 1, maxval = 31)
 from_year  = input(defval = 2021, title = "From Year")
-to_month   = input(defval = 3, title = "To Month", minval = 1, maxval = 12)
-to_day     = input(defval = 13, title = "To Day", minval = 1, maxval = 31)
+to_month   = input(defval = 1, title = "To Month", minval = 1, maxval = 12)
+to_day     = input(defval = 31, title = "To Day", minval = 1, maxval = 31)
 to_year    = input(defval = 2022, title = "To Year")
 start  = timestamp(from_year, from_month, from_day, 00, 00)  // backtest start window
 finish = timestamp(to_year, to_month, to_day, 23, 59)        // backtest finish window
@@ -417,127 +418,6 @@ wtGoldBuy = ((wtShowDiv and wtBullDiv) or (rsiShowDiv and rsiBullDiv)) and
           
 // } CALCULATE INDICATORS
 
-// // Spot                = input(false,      "Spot Trading (no leverage)",   input.bool)
-// // testPeriodStart     = input(StartDate,  "Start of trading",             input.time)
-// // Length              = input(16,         "RSI/VWAP Length",              input.integer,  minval = 1)
-// // OverSold            = input(18,         "RSI/VWAP Oversold",            input.float,    minval = 0,  maxval = 100)
-// // OverBought          = input(80,         "RSI/VWAP Overbought",          input.float,    minval = 0,  maxval = 100)
-// EquityPercent       = input(25,         "% Equity on Longs",            input.float,    minval = 0,  maxval = 100)
-// PositionPercent     = input(50,         "% Position on Closings",       input.float,    minval = 0,  maxval = 100)
-// Risk                = input(15,         "% Drawdown allowed",           input.float,    minval = 0,  maxval = 100)
-// // MarginRate          = input(1.0,        "% Margin Rate",                input.float,    minval = 0) / 100
-
-// // qtyLong      = Spot ? (EquityPercent / 100) * (((strategy.initial_capital + strategy.netprofit) / close) - strategy.position_size):
-// //                              (EquityPercent / 100) *  ((strategy.initial_capital + strategy.netprofit) / close)
-// // qtyShort    = abs((PositionPercent/100)*strategy.position_size) + 0.5
-// qtyLong      = abs((EquityPercent / 100) * (((strategy.initial_capital + strategy.netprofit) / close) - strategy.position_size))
-                           
-// qtyShort    = abs((PositionPercent/100)*strategy.position_size) + 0.5
-// // STEP 1:
-// // Configure trail stop level with input options (optional)
-// longTrailPerc = input(title="Trail Long Loss (%)",
-//      type=input.float, minval=0.0, step=0.1, defval=5) * 0.01
-
-// shortTrailPerc = input(title="Trail Short Loss (%)",
-//      type=input.float, minval=0.0, step=0.1, defval=5) * 0.01
-
-// // STEP 1:
-// // Make inputs that set the take profit % (optional)
-// longProfitPerc = input(title="Long Take Profit (%)",
-//      type=input.float, minval=0.0, step=0.1, defval=10) * 0.01
-
-// shortProfitPerc = input(title="Short Take Profit (%)",
-//      type=input.float, minval=0.0, step=0.1, defval=10) * 0.01
-
-// // STEP 2:
-// // Figure out take profit price
-// longExitPrice  = close *(1 + longProfitPerc)
-// shortExitPrice =  close * (1 - shortProfitPerc)
-// // Figure out take profit price
-// // longExitPrice  = close * (1 + longProfitPerc)
-// // shortExitPrice = close * (1 - shortProfitPerc)
-
-// // // Plot take profit values for confirmation
-// plot(series=(strategy.position_size > 0) ? longExitPrice : na,
-//      color=color.green, style=plot.style_circles,
-//      linewidth=2, title="Long Take Profit")
-// plot(series=(strategy.position_size < 0) ? shortExitPrice : na,
-//      color=color.red, style=plot.style_circles,
-//      linewidth=2, title="Short Take Profit")
-
-// // STEP 2:
-// // Determine trail stop loss prices
-// longStopPrice = 0.0, shortStopPrice = 0.0
-
-// longStopPrice := if (strategy.position_size > 0)
-//     stopValue = close * (1 - longTrailPerc)
-//     max(stopValue, longStopPrice[1])
-// else
-//     0
-
-// shortStopPrice := if (strategy.position_size < 0)
-//     stopValue = close * (1 + shortTrailPerc)
-//     min(stopValue, shortStopPrice[1])
-// else
-//     999999
-
-// // // Plot stop loss values for confirmation
-// plot(series=(strategy.position_size > 0) ? longStopPrice : na,
-//      color=color.blue, style=plot.style_areabr,
-//      linewidth=2, title="Long Trail Stop")
-// plot(series=(strategy.position_size < 0) ? shortStopPrice : na,
-//      color=color.black, style=plot.style_areabr,
-//      linewidth=2, title="Short Trail Stop")
-
-//plot(strategy.equity, title="equity", color=color.red, linewidth=2, style=plot.style_areabr)
-// User Input
-usr_risk = input(title="Equity Risk (%)",type=input.integer,minval=1,maxval=100,step=1,defval=3,confirm=false)
-atr_mult = input(title="Stop Loss (x*ATR, Float)",type=input.float,minval=0.1,maxval=100,step=0.1,defval=0.5,confirm=false)
-slPoints = input(title="Stop Loss Trail Points (Pips)",type=input.integer,minval=1,maxval=1000,step=1,defval=1,confirm=false)
-slOffset = input(title="Stop Loss Trail Offset (Pips)",type=input.integer,minval=1,maxval=1000,step=1,defval=1,confirm=false)
-
-atr_valu = input(title="ATR (Period)",type=input.integer,minval=1,maxval=500,step=1,defval=14,confirm=false)
-
-// Create Indicators
-
-atr = atr(atr_valu)
-
-// Long Entry Function
-enterlong() =>
-    risk = usr_risk * 0.01 * strategy.equity
-    stopLoss = low[1] - atr[1] * atr_mult
-    entryPrice = high[1]
-    units = risk / (entryPrice - stopLoss)
-    strategy.entry("long", strategy.long, units, stop=entryPrice)
-    strategy.exit("exit long", from_entry="long", trail_points=slPoints, trail_offset=slOffset)
-    
-// Short Entry Function
-entershort() =>
-    risk = usr_risk * 0.01 * strategy.equity
-    stopLoss = high[1] + atr[1] * atr_mult
-    entryPrice = low[1]
-    units = risk / (stopLoss - entryPrice)
-    strategy.entry("short", strategy.short, units, stop=entryPrice)
-    strategy.exit("exit short", from_entry="short", trail_points=slPoints, trail_offset=slOffset)
-    
-
-if ( window and buySignal)
-// 	strategy.entry("Entry Long", strategy.long, qty = qtyLong, stop = longStopPrice, limit = longExitPrice)
-    enterlong()
-if (window and sellSignal)
-// 	strategy.entry("Entry Short", strategy.short, qty = qtyShort, stop = shortStopPrice, limit = shortExitPrice)
-    entershort()
-	
-// if (window and strategy.position_size > 0)
-//     strategy.exit("Exit Long", stop = longStopPrice, limit = longExitPrice)
-    
-// if (window and strategy.position_size < 0)
-//     strategy.exit("Exit Short", stop = shortStopPrice, limit = shortExitPrice)
-// //plot(strategy.equity, title="equity", color=color.red, linewidth=2, style=plot.style_areabr)
-
-// // Max Drawdown allowed percent
-// strategy.risk.max_drawdown(Risk, strategy.percent_of_equity)
-
 
 // DRAW {
 bgcolor(darkMode ? color.new(#000000, 80) : na)
@@ -625,21 +505,406 @@ plotchar(wtGoldBuy and wtGoldShow ? -106 : na, title = 'Gold  buy gold circle', 
 
 // } DRAW
 
-
-// ALERTS {
-  
-// BUY
-
 alertcondition(buySignal, 'Buy Signal', 'Buy, WaveTrend Oversold')
-//alertcondition(buySignalDiv and wtBuy, 'Buy (Big green circle + Div)', 'Buy & WT Bullish Divergence & WT Overbought')
-//alertcondition(wtGoldBuy and wtBuy, 'GOLD Buy (Big GOLDEN circle)', 'Green & GOLD circle WaveTrend Overbought')
-//alertcondition(sommiBullish or sommiBullishDiamond and wtBuy, 'Sommi bullish flag/diamond', 'Blue flag/diamond')
-//alertcondition(wtCross and wtCrossUp and wtBuy, 'Buy (Small green dot)', 'Buy small circle')
-
-// SELL
-//alertcondition(sommiBearish or sommiBearishDiamond and wtSell, 'Sommi bearish flag/diamond', 'Purple flag/diamond')
 alertcondition(sellSignal and wtSell, 'Sell Signal', 'Sell, WaveTrend Overbought')
-//alertcondition(sellSignalDiv and wtSell, 'Sell (Big red circle + Div)', 'Buy & WT Bearish Divergence & WT Overbought')
-//alertcondition(wtCross and wtCrossDown and wtSell, 'Sell (Small red dot)', 'Sell small circle')
 
-// } ALERTS
+
+longTradesEnabled = input(defval = true, title = 'Long Trades', inline = 'Trades', group = 'Filters')
+shortTradesEnabled = input(defval = true, title = 'Short Trades', tooltip = 'Enable long/short trades.', inline = 'Trades', group = 'Filters')
+
+bool longFiltersApproval = longTradesEnabled and window
+bool shortFiltersApproval = shortTradesEnabled  and window
+
+bool openLongPosition = longFiltersApproval and buySignal
+bool openShortPosition = shortFiltersApproval and sellSignal
+
+
+bool closeLongPosition = longTradesEnabled and sellSignal
+bool closeShortPosition = shortTradesEnabled and buySignal
+
+// INPUT ============================================================================================================
+atrLength = input(defval = 14, title = 'ATR Length', minval = 1, tooltip = 'How many previous candles to use for the ATR calculation.', group = 'General')
+
+// LOGIC ============================================================================================================
+// the open signals when not already into a position
+bool validOpenLongPosition = openLongPosition and not (strategy.position_size > 0)
+bool validOpenShortPosition = openShortPosition and not (strategy.position_size < 0)
+bool validCloseLongPosition = closeLongPosition and strategy.position_size > 0
+bool validCloseShortPosition = closeShortPosition and strategy.position_size < 0
+
+// count how far are the last valid open and regular close signals
+int barsSinceValidOpenLong = nz(barssince(validOpenLongPosition), 999999)
+int barsSinceValidOpenShort = nz(barssince(validOpenShortPosition), 999999)
+int barsSinceCloseLong = nz(barssince(closeLongPosition), 999999)
+int barsSinceCloseShort = nz(barssince(closeShortPosition), 999999)
+
+// take profit has to communicate its execution with the stop loss logic when 'TP' mode is selected
+var bool longTrailingTakeProfitExecuted = false
+var bool shortTrailingTakeProfitExecuted = false
+
+// close price when the valid open signal was triggered
+float openPrice = valuewhen(validOpenLongPosition or validOpenShortPosition, close, 0)
+
+// atr when last open signal was triggered
+float openAtr = valuewhen(validOpenLongPosition or validOpenShortPosition, atr(atrLength), 0)
+
+//
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// ENTRY ============================================================================================================
+
+// INPUT ============================================================================================================
+enableEntryTrailing = input(defval = false, title = 'Enable Trailing', tooltip = 'Enable or disable the trailing for entry position.', group = 'Entry')
+// devEntryMethod = input(defval = 'ATR', title = 'Deviation Method', options = ['PERC', 'ATR'], tooltip = 'The method to calculate the Deviation for the Trailing Entry.', group = 'Entry')
+devEntryPerc = input(defval = 5.0, title = 'Deviation %', minval = 0.01, maxval = 100, step = 0.05, tooltip = 'The step to follow the price when the open position condition is met.', group = 'Entry') / 100
+devEntryAtrMul = input(defval = 1.0, title = 'Deviation ATR Mul', minval = 0.01, step = 0.05, tooltip = 'Multiplier to be used on the initial entrys` ATR to calculate the step for following the price, when the entry target is reached.', group = 'Entry')
+ctrLongEntrySrc = input(defval = high, title = 'Long/Short Entry Control', inline = 'Control', group = 'Entry')
+ctrShortEntrySrc = input(defval = low, title = '', tooltip = 'The price source to check with the entry target to trigger the entry order for Long/Short position.', inline = 'Control', group = 'Entry')
+
+// LOGIC ============================================================================================================
+var bool enterLongPosition = false
+
+int barsSinceEnterLong = nz(barssince(enterLongPosition), 999999)
+bool openLongIsActive = barsSinceCloseLong >= barsSinceValidOpenLong
+bool enterLongIsPending = barsSinceEnterLong >= barsSinceValidOpenLong
+bool tryEnterLongPosition = longFiltersApproval and openLongIsActive and enterLongIsPending
+
+
+getLongEntryPrice(baseSrc) =>
+    baseSrc + devEntryAtrMul * openAtr
+
+float longEntryPrice = na
+longEntryPrice := if validOpenLongPosition
+    getLongEntryPrice(close)
+else if tryEnterLongPosition
+    min(getLongEntryPrice(low), nz(longEntryPrice[1], 999999))
+else
+    na
+
+enterLongPosition := enableEntryTrailing ? longFiltersApproval and crossover(openLongPosition ? close : ctrLongEntrySrc, longEntryPrice) : openLongPosition
+bool validEnterLongPosition = enterLongPosition and not (strategy.position_size > 0)
+
+var bool enterShortPosition = false
+
+int barsSinceEnterShort = nz(barssince(enterShortPosition), 999999)
+bool openShortIsActive = barsSinceCloseShort >= barsSinceValidOpenShort
+bool enterShortIsPending = barsSinceEnterShort >= barsSinceValidOpenShort
+bool tryEnterShortPosition = shortFiltersApproval and openShortIsActive and enterShortIsPending
+
+getShortEntryPrice(baseSrc) =>
+    baseSrc - devEntryAtrMul * openAtr
+        
+float shortEntryPrice = na
+shortEntryPrice := if validOpenShortPosition
+    getShortEntryPrice(close)
+else if tryEnterShortPosition
+    max(getShortEntryPrice(high), nz(shortEntryPrice[1]))
+else
+    na
+
+enterShortPosition := enableEntryTrailing ? shortFiltersApproval and crossunder(openShortPosition ? close : ctrShortEntrySrc, shortEntryPrice) : openShortPosition
+bool validEnterShortPosition = enterShortPosition and not (strategy.position_size < 0)
+
+// INPUT ============================================================================================================
+enableExitTrailing = input(defval = false, title = 'Enable Trailing', tooltip = 'Enable or disable the trailing for exit position.', group = 'Exit')
+// devExitMethod = input(defval = 'ATR', title = 'Deviation Method', options = ['PERC', 'ATR'], tooltip = 'The method to calculate the Deviation for the Trailing Exit.', group = 'Exit')
+devExitPerc = input(defval = 5.0, title = 'Deviation %', minval = 0.01, maxval = 100, step = 0.05, tooltip = 'The step to follow the price when the close position condition is met.', group = 'Exit') / 100
+devExitAtrMul = input(defval = 1.0, title = 'Deviation ATR Mul', minval = 0.01, step = 0.05, tooltip = 'Multiplier to be used on the initial entrys` ATR to calculate the step for following the price, when the exit target is reached.', group = 'Exit')
+ctrLongExitSrc = input(defval = low, title = 'Long/Short Exit Control', inline = 'Control', group = 'Exit')
+ctrShortExitSrc = input(defval = high, title = '', tooltip = 'The price source to check with the entry target to trigger the entry order for Long/Short position.', inline = 'Control', group = 'Exit')
+
+// LOGIC ============================================================================================================
+var bool exitLongPosition = false
+
+int barsSinceExitLong = nz(barssince(exitLongPosition), 999999)
+bool closeLongIsActive = barsSinceValidOpenLong >= barsSinceCloseLong
+bool exitLongIsPending = barsSinceExitLong >= barsSinceCloseLong
+bool tryExitLongPosition = window and closeLongIsActive and exitLongIsPending
+
+getLongExitPrice(baseSrc) =>
+    baseSrc - devExitAtrMul * openAtr
+
+float longExitPrice = na
+longExitPrice := if validCloseLongPosition
+    getLongExitPrice(close)
+else if tryExitLongPosition
+    max(getLongExitPrice(high), nz(longExitPrice[1], 999999))
+else
+    na
+
+exitLongPosition := enableExitTrailing ? window and crossunder(closeLongPosition ? close : ctrLongExitSrc, longExitPrice) : closeLongPosition
+
+bool longIsActive = enterLongPosition or strategy.position_size > 0 and not exitLongPosition
+
+var bool exitShortPosition = false
+
+int barsSinceExitShort = nz(barssince(exitShortPosition), 999999)
+bool closeShortIsActive = barsSinceValidOpenShort >= barsSinceCloseShort
+bool exitShortIsPending = barsSinceExitShort >= barsSinceCloseShort
+bool tryExitShortPosition = window and closeShortIsActive and exitShortIsPending
+
+getShortExitPrice(baseSrc) =>
+    baseSrc + devExitAtrMul * openAtr
+
+float shortExitPrice = na
+shortExitPrice := if validCloseShortPosition
+    getShortExitPrice(close)
+else if tryExitShortPosition
+    min(getShortExitPrice(low), nz(shortExitPrice[1], 999999))
+else
+    na
+
+exitShortPosition := enableExitTrailing ? window and crossunder(closeShortPosition ? close : ctrShortExitSrc, shortExitPrice) : closeShortPosition
+
+bool shortIsActive = enterShortPosition or strategy.position_size < 0 and not exitShortPosition
+
+// PLOT =============================================================================================================
+var sellColor = color.new(color.red, 0)
+plot(series = enableExitTrailing ? longExitPrice : na, title = 'Long Sell Price', color = sellColor, linewidth = 1, style = plot.style_linebr)
+plot(series = enableExitTrailing ? shortExitPrice : na, title = 'Short Sell Price', color = sellColor, linewidth = 1, style = plot.style_linebr)
+
+//
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// STOP LOSS ========================================================================================================
+
+// INPUT ============================================================================================================
+// stopLossMethod = input(defval = 'ATR', title = 'Stop Loss Method', options = ['PERC', 'ATR'], tooltip = 'The method to calculate the Stop Loss (percentagewise, based on initial ATR or based on ATR changing over time).', group = 'Stop Loss - Target')
+longTrailingStopLossPerc = input(defval = 15.0, title = 'Long/Short Stop Loss %', minval = 0.05, maxval = 100, step = 0.05, inline = 'Trailing Stop Loss Perc', group = 'Stop Loss - Target') / 100
+shortTrailingStopLossPerc = input(defval = 15.0, title = '', minval = 0.05, maxval = 100, step = 0.05, tooltip = 'The percentage of the price decrease/increase to set the Stop Loss price target for long/short positions.', inline = 'Trailing Stop Loss Perc', group = 'Stop Loss - Target') / 100
+longStopLossAtrMul = input(defval = 2.2, title = 'ATR Long/Short Mul ', minval = 0.1, step = 0.1, inline = 'Trailing Stop Loss ATR Multiplier', group = 'Stop Loss - Target')
+shortStopLossAtrMul = input(defval = 2.2, title = '', minval = 0.1, step = 0.1, tooltip = 'ATR multiplier to be used for the long/short Stop Loss.', inline = 'Trailing Stop Loss ATR Multiplier', group = 'Stop Loss - Target')
+enableStopLossTrailing = input(defval = 'TP', title = 'Enable Trailing', options = ['TP', 'ON', 'OFF'], tooltip = 'Enable the trailing for Stop Loss when Take Profit order is executed (TP) or from the start of the entry order (ON) or not at all (OFF).', group = 'Stop Loss - Trailing')
+breakEvenEnabled = input(defval = false, title = 'Break Even', tooltip = 'When Take Profit price target is hit, move the Stop Loss to the entry price (or to a more strict price defined by the Stop Loss %/ATR Multiplier).', group = 'Stop Loss - Trailing')
+
+// LOGIC ============================================================================================================
+
+getLongStopLossPrice(baseSrc) =>
+    baseSrc - longStopLossAtrMul * openAtr
+
+getLongStopLossPerc(baseSrc) =>
+    (baseSrc - getLongStopLossPrice(baseSrc)) / baseSrc
+    
+// trailing starts when the take profit price is reached if 'TP' mode is set or from the very begining if 'ON' mode is selected
+bool enableLongTakeProfitTrailing = enableStopLossTrailing == 'ON' or enableStopLossTrailing == 'TP' and longTrailingTakeProfitExecuted
+
+// calculate trailing stop loss price when enter long position and peserve its value until the position closes
+float longTrailingStopLossPrice = na
+longTrailingStopLossPrice := if longIsActive
+    if validEnterLongPosition
+        getLongStopLossPrice(openPrice)
+    else
+        stopPrice = getLongStopLossPrice(enableLongTakeProfitTrailing ? high : openPrice)
+        stopPrice := breakEvenEnabled and longTrailingTakeProfitExecuted ? max(stopPrice, openPrice) : stopPrice
+        max(stopPrice, nz(longTrailingStopLossPrice[1]))
+else
+    na
+
+getShortStopLossPrice(baseSrc) =>
+    baseSrc + shortStopLossAtrMul * openAtr
+
+getShortStopLossPerc(baseSrc) =>
+    (getShortStopLossPrice(baseSrc) - baseSrc) / baseSrc
+
+// trailing starts when the take profit price is reached if 'TP' mode is set or from the very begining if 'ON' mode is selected
+bool enableShortTakeProfitTrailing = enableStopLossTrailing == 'ON' or enableStopLossTrailing == 'TP' and shortTrailingTakeProfitExecuted
+
+// calculate trailing stop loss price when enter short position and peserve its value until the position closes
+float shortTrailingStopLossPrice = na
+shortTrailingStopLossPrice := if shortIsActive
+    if validEnterShortPosition
+        getShortStopLossPrice(openPrice)
+    else
+        stopPrice = getShortStopLossPrice(enableShortTakeProfitTrailing ? low : openPrice)
+        stopPrice := breakEvenEnabled and shortTrailingTakeProfitExecuted ? min(stopPrice, openPrice) : stopPrice
+        min(stopPrice, nz(shortTrailingStopLossPrice[1], 999999.9))
+else
+    na
+
+// PLOT =============================================================================================================
+var stopLossColor = color.new(#e25141, 0)
+plot(series = longTrailingStopLossPrice, title = 'Long Trail Stop', color = stopLossColor, linewidth = 1, style = plot.style_linebr, offset = 1)
+plot(series = shortTrailingStopLossPrice, title = 'Short Trail Stop', color = stopLossColor, linewidth = 1, style = plot.style_linebr, offset = 1)
+
+//
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// TAKE PROFIT ======================================================================================================
+
+// INPUT ============================================================================================================
+// takeProfitMethod = input(defval = 'ATR', title = 'Take Profit Method', options = ['PERC', 'ATR', 'RR'], tooltip = 'The method to calculate the Take Profit price.', group = 'Take Profit - Target')
+longTakeProfitPerc = input(defval = 30.0, title = 'Long/Short Take Profit %', minval = 0.05, step = 0.05, inline = 'Take Profit Perc', group = 'Take Profit - Target') / 100
+shortTakeProfitPerc = input(defval = 30.0, title = '', minval = 0.05, step = 0.05, tooltip = 'The percentage of the price increase/decrease to set the take profit price target for long/short positions.', inline = 'Take Profit Perc', group = 'Take Profit - Target') / 100
+longTakeProfitAtrMul = input(defval = 4.8, title = 'ATR Long/Short Mul ', minval = 0.1, step = 0.1, inline = 'Take Profit ATR Multiplier', group = 'Take Profit - Target')
+shortTakeProfitAtrMul = input(defval = 4.4, title = '', minval = 0.1, step = 0.1, tooltip = 'ATR multiplier to be used for the long/short Take Profit.', inline = 'Take Profit ATR Multiplier', group = 'Take Profit - Target')
+// longRiskRewardRatio = input(defval = 1.5, title = 'Long/Short RR Ratio ', minval = 0.1, step = 0.1, inline = 'Risk Reward Ratio', group = 'Take Profit - Target')
+// shortRiskRewardRatio = input(defval = 1.5, title = '', minval = 0.1, step = 0.1, tooltip = 'The Risk/Reward Ratio to be used for the long/short Take Profit based on the Stop Loss Price.', inline = 'Risk Reward Ratio', group = 'Take Profit - Target')
+
+enableTakeProfitTrailing = input(defval = true, title = 'Enable Trailing', tooltip = 'Enable or disable the trailing for take profit.', group = 'Take Profit - Trailing')
+devTakeProfitMethod = input(defval = 'ATR', title = 'Deviation Method', options = ['PERC', 'ATR'], tooltip = 'The method to calculate the Deviation for the Trailing Take Profit.', group = 'Take Profit - Trailing')
+devTakeProfitPerc = input(defval = 1.0, title = 'Deviation %', minval = 0.01, maxval = 100, step = 0.05, tooltip = 'The percentage wise step to be used for following the price, when the take profit target is reached.', group = 'Take Profit - Trailing') / 100
+devTakeProfitAtrMul = input(defval = 1.0, title = 'Deviation ATR Mul', minval = 0.01, step = 0.05, tooltip = 'Multiplier to be used on the initial entrys` ATR to calculate the step for following the price, when the take profit target is reached.', group = 'Take Profit - Trailing')
+
+// LOGIC ============================================================================================================
+getLongTakeProfitPrice(baseSrc) =>
+    baseSrc + longTakeProfitAtrMul * openAtr
+
+getLongTakeProfitPerc(baseSrc) =>
+    (baseSrc - getLongTakeProfitPrice(baseSrc)) / baseSrc
+
+// calculate take profit price when enter long position and peserve its value until the position closes
+float longTakeProfitPrice = na
+longTakeProfitPrice := if longIsActive and not longTrailingTakeProfitExecuted
+    if validEnterLongPosition
+        getLongTakeProfitPrice(openPrice)
+    else
+        nz(longTakeProfitPrice[1], getLongTakeProfitPrice(close))
+else
+    na
+
+longTrailingTakeProfitExecuted := strategy.position_size > 0 and (longTrailingTakeProfitExecuted[1] or strategy.position_size < strategy.position_size[1] or strategy.position_size[1] == 0 and high >= longTakeProfitPrice)
+
+longTrailingTakeProfitStepTicks = devTakeProfitAtrMul * openAtr / syminfo.mintick
+
+getShortTakeProfitPrice(baseSrc) =>
+    baseSrc - shortTakeProfitAtrMul * openAtr
+    
+getShortTakeProfitPerc(baseSrc) =>
+    (getShortTakeProfitPrice(baseSrc) - baseSrc) / baseSrc
+
+// calculate take profit price when enter short position and peserve its value until the position closes
+float shortTakeProfitPrice = na
+shortTakeProfitPrice := if shortIsActive and not shortTrailingTakeProfitExecuted
+    if validEnterShortPosition
+        getShortTakeProfitPrice(openPrice)
+    else
+        nz(shortTakeProfitPrice[1], getShortTakeProfitPrice(close))
+else
+    na
+
+shortTrailingTakeProfitExecuted := strategy.position_size < 0 and (shortTrailingTakeProfitExecuted[1] or strategy.position_size > strategy.position_size[1] or strategy.position_size[1] == 0 and low <= shortTakeProfitPrice)
+
+shortTrailingTakeProfitStepTicks =  devTakeProfitAtrMul * openAtr / syminfo.mintick
+
+slMult = input(1.6,title = ' Stop Loss Multiplier')
+tpMult = input(2.9, title = ' Take Profit Multiplier')
+
+longStopLoss = close - slMult* openAtr
+longTakeProfit = close + tpMult * openAtr
+
+shortStopLoss = close + slMult * openAtr
+shortTakeProfit = close - tpMult * openAtr
+
+// INPUT ============================================================================================================
+takeProfitQuantityPerc = input(defval = 50, title = 'Take Profit Quantity %', minval = 0.0, maxval = 100, step = 1.0, tooltip = 'The percentage of the position that will be withdrawn when the take profit price target is reached.', group = 'Quantity/Risk Management')
+
+riskPerc = input(defval = 2, title = 'Capital at Risk %', minval = 1, tooltip = 'The maximum percentage of the equity to risk in every trade when no leverage is used.', group = "Quantity/Risk Management") / 100
+minTrade = input(defval = 10, title = 'Minimum Trade Price', minval = 1, tooltip = 'The minimum trade price in Quote currency that is allowed in the exchange for a valid new position.', group = "Quantity/Risk Management")
+longLeverage = input(defval = 5, title = 'Leverage Long/Short ', minval = 1, inline = 'Leverage', group = "Quantity/Risk Management")
+shortLeverage = input(defval = 5, title = '', minval = 1, tooltip = 'Leverage factor used to multiply the initial risk quantity of each trade (by borrowing the remaining amount). Thus, the profits and losses are multiplied respectivelly.', inline = 'Leverage', group = "Quantity/Risk Management")
+
+number_long = strategy.equity * riskPerc * longLeverage / getLongStopLossPerc(close)
+higher_long = strategy.equity * longLeverage
+// LOGIC ============================================================================================================
+var int quoteDecimalDigits = max(ceil(-1 * log10(syminfo.mintick * syminfo.pointvalue)), 0)
+
+num_of_decimal_digits(number) =>
+    max(ceil(-1 * log10(number)), 0)
+
+
+floor1(number, precision) =>
+    fact = pow(10,  precision)
+    num = number * fact
+    floor(num) / fact
+
+ceil1(number, precision) =>
+    fact = pow(10,  precision)
+    num = number * fact
+    ceil(num) / fact
+    
+clamp(number, lower, higher, precision) =>
+    ceil1(max(floor1(min(number, higher), precision), lower), precision)
+
+getLongRiskQuoteQuantity() =>
+    clamp(number_long, minTrade, higher_long, quoteDecimalDigits)
+    
+getLongRiskQuoteQuantityPerc() =>
+    getLongRiskQuoteQuantity() / strategy.equity
+
+getLongRiskBaseQuantity() =>
+    getLongRiskQuoteQuantity() / close
+
+float longEntryBaseQuantity = na
+longEntryBaseQuantity := if longIsActive
+    if validOpenLongPosition
+        getLongRiskBaseQuantity()
+    else
+        nz(longEntryBaseQuantity[1], getLongRiskBaseQuantity())
+else
+    na
+
+number_short = strategy.equity * riskPerc * shortLeverage / getShortStopLossPerc(close)
+higher_short = strategy.equity * shortLeverage
+getShortRiskQuoteQuantity() =>
+    clamp(number_short, minTrade, higher_short, quoteDecimalDigits)
+    
+getShortRiskQuoteQuantityPerc() =>
+    getShortRiskQuoteQuantity() / strategy.equity
+
+getShortRiskBaseQuantity() =>
+    getShortRiskQuoteQuantity() / close
+
+float shortEntryBaseQuantity = na
+shortEntryBaseQuantity := if shortIsActive
+    if validOpenShortPosition
+        getShortRiskBaseQuantity()
+    else
+        nz(shortEntryBaseQuantity[1], getShortRiskBaseQuantity())
+else
+    na
+
+// INPUT ============================================================================================================
+msgOpenLong = input(defval = 'Long: Started', title = 'Open Long/Short', inline = 'Open Message', group = 'Alert Messages')
+msgOpenShort = input(defval = 'Short: Started', title = '', tooltip = 'Alert messages emited when open long/short position.', inline = 'Open Message', group = 'Alert Messages')
+msgCloseLong = input(defval = 'Long: Closed at market price', title = 'Close Long/Short', inline = 'Close Message', group = 'Alert Messages')
+msgCloseShort = input(defval = 'Short: Closed at market price', title = '', tooltip = 'Alert messages emited when close long/short position.', inline = 'Close Message', group = 'Alert Messages')
+msgTPSLLong = input(defval = 'Long: Take Profit or Stop Loss executed', title = 'TP/SL Long/Short', inline = 'TP/SL Message', group = 'Alert Messages')
+msgTPSLShort = input(defval = 'Short: Take Profit or Stop Loss executed', title = '', tooltip = 'Alert message emited when the first quantity target (take profit or stop loss) for long/short position is hit.', inline = 'TP/SL Message', group = 'Alert Messages')
+msgSLLong = input(defval = 'Long: Stop Loss executed', title = 'SL Long/Short ', inline = 'SL Message', group = 'Alert Messages')
+msgSLShort = input(defval = 'Short: Stop Loss executed', title = '', tooltip = 'Alert message emited when the second quantity stop loss target for long/short position is hit.', inline = 'SL Message', group = 'Alert Messages')
+msgMaxDrawdown= input(defval = 'Death is the new beginning', title = 'Max Drawdown', tooltip = 'Alert message emited when the max drawdown limit is hit.', group = 'Alert Messages')
+
+//
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// POSITION ORDERS ==================================================================================================
+
+// INPUT ============================================================================================================
+maxDrawdown = input(defval = 20, title = 'Max Drawdown %', minval = 1, maxval = 100, tooltip = 'The maximum drawdown to stop trading.', group = "Quantity/Risk Management")
+
+highlighting = input(defval = false, title = 'Show Position Highlighter', tooltip = 'Highlight winning/lossing position.', group = 'Plot')
+
+// LOGIC ============================================================================================================
+// close on trend reversal
+strategy.close(id = 'Long Entry', when = exitLongPosition, comment = 'Close Long', alert_message = msgCloseLong)
+
+// close on trend reversal
+strategy.close(id = 'Short Entry', when = exitShortPosition, comment = 'Close Short', alert_message = msgCloseShort)
+
+// getting into LONG position
+// strategy.entry(id = 'Long Entry', strategy.long, qty = longEntryBaseQuantity, when = enterLongPosition, alert_message = msgOpenLong)
+// strategy.entry("Long Entry", strategy.long, qty = qtyLong, when = enterLongPosition, alert_message = msgOpenLong)
+strategy.entry("Long Entry", strategy.long, qty = longEntryBaseQuantity, when = enterLongPosition, alert_message = msgOpenLong)
+
+// submit exit order for trailing take profit price also set the stop loss for the take profit percentage in case that stop loss it reached first
+strategy.exit(id = 'Long Take Profit / Stop Loss', from_entry = 'Long Entry', qty_percent = takeProfitQuantityPerc, limit = longTakeProfit, stop = longStopLoss, trail_price = enableTakeProfitTrailing ? longTakeProfitPrice : na, trail_offset = enableTakeProfitTrailing ? longTrailingTakeProfitStepTicks : na, when = longIsActive, alert_message = msgTPSLLong)
+// submit exit order for trailing stop loss price for the remaining percent of the quantity not reserved by the take profit order
+strategy.exit(id = 'Long Stop Loss', from_entry = 'Long Entry', stop = longStopLoss, when = longIsActive, alert_message = msgSLLong)
+
+// getting into SHORT position
+// strategy.entry('Short Entry',strategy.short,qty=qtyShort, when = enterShortPosition, alert_message = msgOpenShort)
+strategy.entry('Short Entry',strategy.short, qty = shortEntryBaseQuantity, when = enterShortPosition, alert_message = msgOpenShort)
+// submit exit order for trailing take profit price also set the stop loss for the take profit percentage in case that stop loss it reached first
+strategy.exit(id = 'Short Take Profit / Stop Loss', from_entry = 'Short Entry', qty_percent = takeProfitQuantityPerc, limit = shortTakeProfit, stop = shortStopLoss, trail_price = enableTakeProfitTrailing ? shortTakeProfitPrice : na, trail_offset = enableTakeProfitTrailing ? shortTrailingTakeProfitStepTicks : na, when = shortIsActive, alert_message = msgTPSLShort)
+// submit exit order for trailing stop loss price for the remaining percent of the quantity not reserved by the take profit order
+strategy.exit(id = 'Short Stop Loss', from_entry = 'Short Entry', stop = shortStopLoss, when = shortIsActive, alert_message = msgSLShort)
+
+// limit the maximum drawdown
+// strategy.risk.max_drawdown(value = maxDrawdown, type = strategy.percent_of_equity, alert_message = msgMaxDrawdown)
+
